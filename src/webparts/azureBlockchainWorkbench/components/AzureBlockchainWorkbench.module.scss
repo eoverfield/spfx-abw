@@ -1,0 +1,743 @@
+@import '~@microsoft/sp-office-ui-fabric-core/dist/sass/SPFabricCore.scss';
+
+.azureBlockchainWorkbench {
+  .divider {
+    margin: 0 auto;
+    height: 2px;
+    border: 0;
+    outline: 0;
+    position: relative;
+    background-color: $ms-color-neutralTertiary;
+    width: 100%;
+  }
+
+  .disabledCommandBar {
+    &:hover {
+      background-color: transparent;
+    }
+  }
+  :global {
+    .ms-CommandBarItem-link[disabled] {
+      .ms-CommandBarItem-icon, .ms-CommandBarItem-commandText {
+        color: #c8c8c8 !important;
+      }
+    }
+  }
+
+  .azureBlockchainWorkbenchHeader {
+    position: relative;
+  }
+
+  .facepileHeader {
+    position: relative;
+
+    .facepile {
+      float: right;
+      margin: .67em 0 0;
+      font-size: 28px;
+
+      .facepileRoot {
+        display: inline-block;
+        vertical-align: top;
+      }
+      .facepileButton {
+        display: inline-block;
+        background-color: transparent;
+        vertical-align: top;
+      }
+      :global {
+        .ms-Facepile-itemButton {
+          border-radius: 0;
+          &:hover {
+            background-color: $ms-color-themeLighter;
+          }
+        }
+      }
+    }
+  }
+
+  .applicationList {
+    position: relative;
+    background-color: white;
+
+    .header {
+      padding: 0px 10px;
+    }
+
+    .welcomeBox {
+      width: 325px;
+      height: 300px;
+
+      border-radius: 15px;
+      background-color: $ms-color-white;
+      border: 3px solid;
+      border-color: $ms-color-neutralDark;
+      box-sizing: border-box;
+      padding: 12px;
+
+      .header {
+        text-align: center;
+
+        h1 {
+          margin:0;
+        }
+        span {
+          font-size: 12px;
+          color: $ms-color-neutralPrimary;
+        }
+      }
+
+      .startButtons {
+        margin-top: 18px;
+
+        &:lang(fr-fr) {
+          margin-top: 12px;
+        }
+
+        .startButton {
+          display: flex;
+          border: 2px solid;
+          border-color: $ms-color-neutralDark;
+          border-radius: 15px;
+          padding: 10px;
+          cursor: pointer;
+          margin-bottom: 12px;
+
+          &:lang(fr-fr) {
+            margin-bottom: 8px;
+          }
+
+          &:hover {
+            background-color: $ms-color-themeLighter;
+
+            .icon {
+              color: $ms-color-themePrimary;
+            }
+          }
+
+          .icon {
+            color: $ms-color-themeDark;
+            font-size: 48px;
+            margin-right: 14px;
+            margin-left: 4px;
+            margin-top: 4px;
+            height: 56px;
+          }
+
+          .words {
+            flex-grow: 1;
+
+            h2 {
+              margin: 0;
+            }
+          }
+
+        }
+
+      }
+
+
+      .newForm {
+        .columnType {
+          padding-bottom: 8px;
+
+          label {
+            padding-top: 0;
+          }
+        }
+
+        :global {
+          .ms-ChoiceField {
+            margin-top: 0 !important;
+          }
+        }
+      }
+
+      .openForm {
+        .columnType {
+          padding-top: 12px;
+
+          :global {
+            .ms-Dropdown-container {
+              padding-left: 26px;
+              padding-top: 4px;
+            }
+          }
+        }
+
+        .subChoice {
+          padding-left: 16px;
+          padding-top: 2px;
+        }
+      }
+
+      .uploadForm {
+        text-align: center;
+
+        .headerLabel {
+          font-weight: bold;
+          font-size: 18px;
+        }
+
+        .dropZone {
+          width: 100%;
+          height: 106px;
+          border: 3px dashed;
+          border-color: $ms-color-neutralPrimary;
+          border-radius: 15px;
+          box-sizing: border-box;
+          color: $ms-color-neutralSecondary;
+          margin: 14px 0;
+          padding: 0 10px;
+        }
+
+        .dropZoneActive,
+        .dropZoneRejected {
+          border-color: $ms-color-themePrimary;
+        }
+
+        .uploadError {
+          color: $ms-color-redDark;
+          display: inline-block;
+          font-style: italic;
+          margin-top: 4px;
+        }
+      }
+
+      .navigationButtons {
+        display:flex;
+        position: absolute;
+        bottom: 12px;
+        box-sizing: border-box;
+        width: calc(100% - 24px);
+
+        div {
+          flex-grow: 1;
+        }
+      }
+
+      .wizardChoiceSelection {
+        margin-top: 2px;
+        margin-bottom: 2px;
+        padding-left: 26px;
+        overflow-y: hidden;
+        overflow-x: auto;
+        width: 261px;
+        box-sizing: border-box;
+
+        .wizardChoices {
+          height: 102px;
+          overflow-y: hidden;
+
+          .wizardChoiceBox {
+            display: inline-block;
+            border: 1px solid;
+            border-color: $ms-color-neutralTertiary;
+            border-radius: 5px;
+            text-align: center;
+            cursor: pointer;
+            width: 64px;
+            height: 48px;
+            margin-right: 4px;
+            margin-bottom: 4px;
+            box-sizing: border-box;
+            position: relative;
+
+            i {
+              display:block;
+              font-size: 24px;
+              margin-top: 4px;
+            }
+
+            span {
+              font-size: 10px;
+              position: absolute;
+              left: 0;
+              bottom: 3px;
+              width: 100%;
+            }
+
+            &:hover {
+              background-color: $ms-color-themeLighter;
+
+              i {
+                color: $ms-color-themePrimary;
+              }
+            }
+
+            &.choosenWizard {
+              border-color: $ms-color-themePrimary;
+              background-color: $ms-color-themeLight;
+
+              i {
+                color: $ms-color-themeDark;
+              }
+            }
+          }
+
+          .noWizards {
+            font-style: italic;
+            color: $ms-color-neutralTertiary;
+            display: inline-block;
+            margin-top: 4px;
+          }
+        }
+
+        &.disabled {
+          .wizardChoiceBox {
+            color: $ms-color-neutralLight;
+            border-color: $ms-color-neutralLight;
+            cursor: default;
+
+            &:hover {
+              background-color: unset;
+
+              i {
+                color: $ms-color-neutralLight;
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+
+  .contractActions {
+    display: inherit;
+
+    &.contractActionsEmpty {
+      height: 200px;
+    }
+
+    .lastAction {
+      text-align: left;
+      padding-left: 16px;
+      padding-top: 39px;
+      padding-bottom: 12px;
+      color: #7d7d7d;
+    }
+  }
+}
+
+.tileWrapper {
+  padding-top: 40px;
+  display: -ms-flexbox;
+  display: flex;
+  -ms-flex: 1 1 100%;
+      flex: 1 1 100%;
+  overflow: hidden;
+}
+
+.applicationTileContainer {
+  overflow-y: auto;
+  display: -ms-flexbox;
+  display: flex;
+  -ms-flex-wrap: wrap;
+      flex-wrap: wrap;
+  -ms-flex-pack: start;
+      justify-content: flex-start;
+
+  .applicationTile {
+    position: relative;
+    height: 200px;
+    margin-right: 60px;
+    margin-bottom: 60px;
+  }
+}
+
+.applicationDetail {
+  display: block;
+}
+
+.contractDetail {
+  display: block;
+}
+
+.contractDashboard {
+  display: block;
+  padding: 28px 0 28px 28px;
+  overflow: hidden;
+  background-color: #f4f4f4;
+
+  .contractCard {
+    display: block;
+    background-color: #fff;
+    margin: 0px 28px 28px 0px;
+    text-align: center;
+
+    .header {
+      text-align: left;
+      height: 48px;
+      border-bottom: 1px solid #f4f4f4;
+
+      H2 {
+        margin: 0;
+        padding-left: 16px;
+        padding-top: 13px;
+        padding-bottom: 13px;
+      }
+    }
+
+    .content {
+      //display: -ms-flexbox;
+      //display: flex;
+      display: block;
+    }
+
+    .stateNumber {
+      position: relative;
+      top: -105px;
+      margin: 0;
+      margin-bottom: -20px;
+    }
+    .statusList {
+      height: 150px;
+      overflow: auto;
+    }
+
+    .rowContainer {
+      white-space: nowrap;
+      overflow: hidden;
+      -o-text-overflow: ellipsis;
+      text-overflow: ellipsis;
+      text-align: left;
+      margin: 0px 15px;
+      padding: 10px 0px;
+      border-bottom: 1px solid #f4f4f4;
+
+      .rowColumnLeft {
+        color: #7d7d7d;
+      }
+      .rowColumnRight {
+        color: initial;
+      }
+    }
+    .selected {
+      font-weight: 700;
+    }
+
+    .timecard {
+      .timelineDate {
+        color: #767676;
+        font-size: 11px;
+        position: relative;
+        z-index: 1;
+        text-align: center;
+      }
+
+      .timelineRow {
+        text-align: left;
+        position: relative;
+
+        &:hover {
+          cursor: pointer;
+        }
+
+        .timelineItem {
+          display: inline-block;
+          width: 80%;
+        }
+        .leftSide {
+          padding: 13px 16px;
+          display: inline-block;
+          margin: 0;
+        }
+        .rightSide {
+          position: absolute;
+          top: 13px;
+          right: 16px;
+          display: inline-block;
+          text-align: right;
+          min-width: 50px;
+          margin: 0;
+        }
+      }
+    }
+  }
+}
+
+.personaCell {
+  margin: 20px 0px;
+}
+
+/*
+.tile:hover .checkbox-div input:not(:checked) ~ .checkmark:after,
+.tileChecked:hover .checkbox-div input:not(:checked) ~ .checkmark:after, .Tile:focus-within .checkbox-div input:not(:checked) ~ .checkmark:after,
+.tileChecked:focus-within .checkbox-div input:not(:checked) ~ .checkmark:after {
+  border-top: none;
+  border-right: 1px solid;
+  border-bottom: 1px solid;
+  border-left: none; }
+*/
+
+.appTileContent, .appTileContentChecked {
+  width: 150px;
+  height: 184px;
+  padding-top: 16px;
+  -webkit-box-shadow: 0 8px 10px rgba(0, 0, 0, 0.16);
+          box-shadow: 0 8px 10px rgba(0, 0, 0, 0.16);
+
+  &:hover {
+    .appTileCheckboxDiv {
+
+      .appTileCheckmark {
+        visibility: visible;
+      }
+    }
+  }
+  .appTileCheckboxDiv {
+    display: block;
+
+    .appTileCheckmark {
+      background-color: #fff;
+      visibility: hidden;
+      border: 1px solid #c8c8c8;
+      position: absolute;
+      top: 0;
+      right: 0;
+      height: 16px;
+      width: 16px;
+      border-radius: 50%;
+      outline: none;
+
+      &:after {
+        content: "";
+        position: absolute;
+        border-right: 1px solid #c8c8c8;
+        border-bottom: 1px solid #c8c8c8;
+        left: 6px;
+        top: 3px;
+        width: 3px;
+        height: 8px;
+        -webkit-transform: rotate(45deg);
+        -ms-transform: rotate(45deg);
+        transform: rotate(45deg);
+      }
+    }
+  }
+
+  .appCustomTile {
+    width: 120px;
+    height: 120px;
+    margin: 0px 16px;
+
+    SPAN.appCustomTileContent {
+      font-size: 2.313em;
+      font-weight: 300;
+      display: block;
+      position: relative;
+      top: 30%;
+      left: 0;
+      color: #FFFFFF;
+      text-align: center;
+    }
+  }
+
+  .applicationTitle {
+    overflow: hidden;
+    -o-text-overflow: ellipsis;
+       text-overflow: ellipsis;
+    white-space: nowrap;
+    margin: 8px 16px 0px 16px;
+    text-align: center;
+  }
+  .applicationDate {
+    margin: 0px 16px 4px 16px;
+    text-align: center;
+    font-size: 10px;
+    font-weight: normal;
+    color: #212121;
+  }
+  .applicationEnabledDisabled {
+    margin: 6px 16px 10px 16px;
+    text-align: center;
+    font-size: 10px;
+    font-weight: normal;
+    color: #212121;
+  }
+
+  &:hover {
+    cursor: pointer;
+    background-color: #EAEAEA;
+  }
+  &:focus {
+    outline: 1px solid #DADADA;
+  }
+  /*
+  &:hover {
+    cursor: pointer;
+    background-color: #EAEAEA;
+
+    .checkboxButton {
+      visibility: hidden;
+      position: absolute;
+      right: 0;
+      top: 0;
+      margin-right: 0;
+      cursor: pointer;
+    }
+
+    .checkmark {
+      visibility: visible;
+      position: absolute;
+      top: 0;
+      right: 0;
+      height: 16px;
+      width: 16px;
+      border-radius: 50%;
+      background-color: white;
+      border: 1px solid #C8C8C8;
+    }
+
+  }
+  */
+
+  /*
+  &:focus {
+    outline: 1px solid #DADADA;
+
+    .checkmark {
+      outline: none;
+    }
+  }
+
+  &:focus-within {
+    .checkbox-button {
+      visibility: hidden;
+      position: absolute;
+      right: 0;
+      top: 0;
+      margin-right: 0;
+    }
+
+    .checkmark {
+      visibility: hidden;
+      position: absolute;
+      top: 0;
+      right: 0;
+      height: 16px;
+      width: 16px;
+      border-radius: 50%;
+      background-color: #eee;
+      outline: none;
+    }
+  }
+
+  &:active {
+    background-color: #DADADA;
+  }
+  */
+}
+.appTileContentChecked {
+    .appTileCheckboxDiv {
+
+      .appTileCheckmark {
+        background-color: #3449aa;
+        visibility: visible;
+        border: 1px solid #fff;
+      }
+    }
+  }
+
+.contractActivity {
+  cursor: initial;
+}
+.contractActivityPanel {
+  .contractActivityPanelRow {
+    margin-bottom: 40px;
+
+    .title {
+      color: #212121;
+      margin-bottom: 14px;
+      word-wrap: break-word;
+    }
+  }
+}
+
+.contractActionsPanel {
+  display: inherit;
+}
+
+.appTileContentChecked {
+  cursor: pointer;
+  background-color: #EAEAEA;
+
+
+}
+
+/*
+.tileChecked {
+  background-color: #DADADA;
+
+  &:hover {
+    background-color: #DADADA;
+  }
+}
+*/
+
+
+
+
+// WEBPACK FOOTER //
+// ./src/components/tile/tile.scss
+
+.zeroMemberCallout {
+  border: none;
+
+  .msCalloutMain {
+    border: none;
+
+    p {
+      text-align: center;
+      color: #ffffff;
+    }
+
+    .buttons {
+      margin: 20px auto 20px 20px;
+
+      .add-a-member {
+        color: #0078d7;
+        margin-right: 16px;
+      }
+
+      .close {
+        border: 1px solid white;
+      }
+    }
+  }
+}
+
+.zeroAppCallout {
+  border: none;
+
+  p {
+    text-align: center;
+    color: #ffffff;
+  }
+}
+
+:global {
+  .abw-breadcrumb-persona-callout {
+    .ms-Callout-main {
+      padding: 20px;
+    }
+  }
+
+  .statusArcBackground {
+    fill: #c89fc9; }
+
+  .statusArcForegroundBackground {
+    fill: #7f3880; }
+
+  .statusArcBackground-Success {
+    fill: green; }
+
+  .statusArcForegroundBackground-Success {
+    fill: limegreen; }
+
+  .statusArcBackground-Failure {
+    fill: red; }
+
+  .statusArcForegroundBackground-Failure {
+    fill: red; }
+}

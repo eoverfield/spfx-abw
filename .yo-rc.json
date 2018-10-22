@@ -1,0 +1,11 @@
+{
+  "@microsoft/generator-sharepoint": {
+    "packageManager": "npm",
+    "isCreatingSolution": true,
+    "environment": "spo",
+    "version": "1.6.0",
+    "libraryName": "azure-workbench",
+    "libraryId": "504d9028-a401-4631-8e3f-3cd61f9a68d7",
+    "componentType": "webpart"
+  }
+}
