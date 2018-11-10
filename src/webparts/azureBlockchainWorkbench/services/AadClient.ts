@@ -1,16 +1,21 @@
-import { AadHttpClient, IHttpClientOptions } from "@microsoft/sp-http";
+import { AadHttpClient, IHttpClientOptions, HttpClient } from "@microsoft/sp-http";
 import { ServiceScope, Log } from '@microsoft/sp-core-library';
+import { WebPartContext } from '@microsoft/sp-webpart-base';
 
 export class AadClient {
   private static aadHttpClient: AadHttpClient;
+  private static httpClient: HttpClient;
   private static serviceScope: ServiceScope;
   private static aadAppId: string;
   private static apiUrl: string;
 
 	//constructor(serviceScope: ServiceScope, aadAppId: string, apiUrl?: string) {}
 
-  public static init(inputServiceScope: ServiceScope, inputAadAppId: string, inputApiUrl?: string) {
-    this.serviceScope = inputServiceScope;
+  //public static init(inputServiceScope: ServiceScope, inputAadAppId: string, inputApiUrl?: string) {
+  public static init(context: WebPartContext, inputAadAppId: string, inputApiUrl?: string) {
+    //this.serviceScope = inputServiceScope;
+    this.serviceScope = context.serviceScope;
+    this.httpClient = context.httpClient;
     this.aadAppId = inputAadAppId;
     this.apiUrl = AadClient.validateApiUrl(inputApiUrl);
 
@@ -82,32 +87,35 @@ export class AadClient {
       });
   }
 
-  public static async post(aadHttpClient: AadHttpClient, url: string, body: any, aadRequestHeaders?: Headers): Promise<any> {
+  public static async post(url: string, body?: string, formData?: FormData, aadRequestHeaders?: Headers): Promise<any> {
     if (aadRequestHeaders == undefined) {
       aadRequestHeaders = new Headers();
-    }
-
-    if (body == undefined) {
-      body = "";
-    }
-
-    //if (this.includeCommonHeaders) {
+      //by default, assume response is json
       aadRequestHeaders.append('Accept', 'application/json');
-      aadRequestHeaders.append('Content-Type', 'application/json;charset=UTF-8');
-    //}
+      //when formData is provided, fetch will auto populate content-type to provide boundary
+      //aadRequestHeaders.append('Content-Type', 'multipart/form-data; boundary=AaB03x');
+    }
+
+    //we will assume that formData must have something as a backup in case body not provided
+    if (formData == undefined) {
+      formData = new FormData();
+    }
 
     //set up get options
-    const requestGetOptions: IHttpClientOptions = {
-      body: body,
-      headers: aadRequestHeaders
+    const requestPostOptions: IHttpClientOptions = {
+      headers: aadRequestHeaders,
+      body: (body) ? body : formData
     };
 
-    // we want something like this
-    return aadHttpClient
+    // create the request URL
+    let requestUrl: string = this.apiUrl + url;
+
+    //make the post request which is a wrapper to fetch, setting method to post
+    return this.aadHttpClient
       .post(
-        url,
+        requestUrl,
         AadHttpClient.configurations.v1,
-        requestGetOptions
+        requestPostOptions
       )
       .then(response => {
         return response.json();
@@ -116,9 +124,10 @@ export class AadClient {
         return json;
       })
       .catch(error => {
-        console.log("AadHttpRequest Post error occured");
-        console.error(error);
-        return {};
+        let aadError = new Error("an error was thrown attempting to complete a post request.");
+        Log.error("Aad Client post", aadError);
+
+        throw error;
       });
   }
 

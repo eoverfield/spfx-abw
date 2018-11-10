@@ -16,6 +16,12 @@ export interface IApplicationWorkflowsResponse {
   workflows: IWorkflow[];
 }
 
+export interface INewApplicationResponse {
+  result: boolean;
+  id: number;
+  errors?: Array<string>;
+}
+
 //Query Interfaces
 export interface IApplicationQuery {
   top: number;

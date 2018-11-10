@@ -28,7 +28,6 @@ export interface IHeaderState {
 }
 
 export class Header extends React.Component<IHeaderProps, IHeaderState> {
-
   constructor(props:IHeaderProps) {
     super(props);
 

@@ -2,8 +2,6 @@
 display a given application tiele
 */
 import * as React from 'react';
-import { connect } from 'react-redux';
-import { Dispatch } from 'redux';
 
 import styles from '../AzureBlockchainWorkbench.module.scss';
 //import * as strings from 'AzureBlockchainWorkbenchWebPartStrings';
@@ -12,8 +10,6 @@ import { autobind } from 'office-ui-fabric-react/lib/Utilities';
 
 import { IApplication } from '../../models/IApplication';
 
-import { IApplicationState, IHashTable } from '../../state/State';
-import { setSelectedApplicationsAction } from '../../state/Actions';
 import { HelperFunctions } from '../../helpers/HelperFunctions';
 
 export interface IApplicationTileProps {
@@ -40,7 +36,7 @@ export class ApplicationTile extends React.Component<IApplicationTileProps, IApp
     };
   }
 
-  public render(): React.ReactElement<IApplicationTileState> {
+  public render(): React.ReactElement<IApplicationTileProps> {
     return (
       <div className={styles.applicationTileContainer}>
         <div key={this.props.displayIndex} className={styles.applicationTile} data-selection-index={this.props.displayIndex}>
@@ -61,7 +57,7 @@ export class ApplicationTile extends React.Component<IApplicationTileProps, IApp
                   ></span>
               </div>
 
-            <div className={styles.appCustomTile} style={{backgroundColor: HelperFunctions.getColorFromString(this.props.application.displayName)}}>
+            <div className={styles.appCustomTile} style={{backgroundColor: HelperFunctions.getColorFromString(this.props.application)}}>
               <span className={styles.appCustomTileContent}>{HelperFunctions.getInitials(this.props.application.displayName)}</span>
             </div>
             <div className={styles.applicationTitle}>

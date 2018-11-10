@@ -67,7 +67,8 @@ export default class AzureBlockchainWorkbenchWebPart extends BaseClientSideWebPa
 
     if (this.properties.workbenchAADAppId && this.properties.workbenchApiUrl) {
       //set up aad client we will use to authenticate to Workbench Api
-      AadClient.init(this.context.serviceScope, this.properties.workbenchAADAppId, this.properties.workbenchApiUrl);
+      //AadClient.init(this.context.serviceScope, this.properties.workbenchAADAppId, this.properties.workbenchApiUrl);
+      AadClient.init(this.context, this.properties.workbenchAADAppId, this.properties.workbenchApiUrl);
 
       //since we have an aad app id and api url, then we can attempt to load the user
       this.store.dispatch(changeUIState(uiState.loadingCurrentUser));

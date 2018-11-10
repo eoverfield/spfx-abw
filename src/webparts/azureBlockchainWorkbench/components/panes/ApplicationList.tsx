@@ -8,16 +8,20 @@ import styles from '../AzureBlockchainWorkbench.module.scss';
 import { CommandBar } from 'office-ui-fabric-react/lib/CommandBar';
 import { IContextualMenuItem } from 'office-ui-fabric-react/lib/ContextualMenu';
 import { Panel, PanelType } from 'office-ui-fabric-react/lib/Panel';
-import { Label } from 'office-ui-fabric-react/lib/Label';
 import { Persona, PersonaSize, IPersonaSharedProps } from 'office-ui-fabric-react/lib/Persona';
 import { IFacepilePersona } from 'office-ui-fabric-react/lib/Facepile';
 import { Spinner, SpinnerSize } from 'office-ui-fabric-react/lib/Spinner';
+import { Callout, DirectionalHint } from 'office-ui-fabric-react/lib/Callout';
+import { Label } from 'office-ui-fabric-react/lib/Label';
 
 import { autobind } from 'office-ui-fabric-react/lib/Utilities';
+import { createRef } from 'office-ui-fabric-react/lib/Utilities';
 
 import { Header } from '../controls/Header';
-import { FileUploader } from '../controls/FileUploader';
 import { ApplicationTile } from '../controls/ApplicationTile';
+import { ApplicationTileNew } from '../controls/ApplicationTileNew';
+import { NewApplicationPanel } from '../controls/NewApplicationPanel';
+
 
 import { IUserResponse, IUser } from '../../models/IUser';
 import { IApplicationResponse, IApplication, IApplicationQuery } from '../../models/IApplication';
@@ -47,6 +51,8 @@ export interface IApplicationListState {
   stage: applicationsStage;
   stageMessage: string;
   newApplicationPanelVisible: boolean;
+  calloutMessage: string;
+  calloutMessageVisible: boolean;
   applicationQuery: IApplicationQuery;
   peoplePanelVisible: boolean;
   facepilePersonas?: any[];
@@ -55,6 +61,7 @@ export interface IApplicationListState {
 }
 
 class ApplicationList_ extends React.Component<IApplicationListProps, IApplicationListState> {
+  private _menuButtonElement = createRef<HTMLElement>();
 
   constructor(props:IApplicationListProps) {
     super(props);
@@ -63,6 +70,8 @@ class ApplicationList_ extends React.Component<IApplicationListProps, IApplicati
       stage: applicationsStage.loading,
       stageMessage: "Loading",
       newApplicationPanelVisible:false,
+      calloutMessage: "",
+      calloutMessageVisible: false,
       applicationQuery: ApplicationService.initializeApplicationQuery(),
       peoplePanelVisible: false,
       facepilePersonas: new Array<IFacepilePersona>(),
@@ -94,39 +103,55 @@ class ApplicationList_ extends React.Component<IApplicationListProps, IApplicati
               personas = {this.state.personas}
             />
 
-            <CommandBar
-              items={commandBarItemsLeft}
-              farItems={this.getCommandBarFarItems()}
-            />
+            <div>
+              <CommandBar
+                items={commandBarItemsLeft}
+                farItems={this.getCommandBarFarItems()}
+              />
+            </div>
 
-            <Panel
-              isOpen={this.state.newApplicationPanelVisible}
-              onDismiss={this.closeNewPanel}
-              type={PanelType.medium}
-              headerText="New Application"
-            >
-              <Label required={true}>UPLOAD THE CONTRACT CONFIGURATION (.json)</Label>
+            {this.state.calloutMessageVisible && this.state.calloutMessage && this.state.calloutMessage.length > 0 && (
+              <Callout
+                target={this._menuButtonElement.current}
+              >
+                <Label>{this.state.calloutMessage}</Label>
+              </Callout>
+            )}
 
-              <FileUploader onTextLoaded={this.onFileTextReceived}/>
+            {this.state.newApplicationPanelVisible && (
+              <NewApplicationPanel
+                onDismiss={this.closeNewPanel}
+                onSuccess={this.successNewPanel}
+                type={PanelType.medium}
+                headerText="New Application"
+              />
+            )}
 
-            </Panel>
+            <div className={styles.tileWrapper} ref={this._menuButtonElement}>
+            {(this.state.applications && this.state.applications.length > 0) ? (
 
-            {this.state.applications && this.state.applications.length > 0 && (
-              <div className={styles.tileWrapper}>
-                {this.state.applications.map((item, index) => (
+                this.state.applications.map((item, index) => (
                   <ApplicationTile
                     displayIndex={index}
                     application={item}
                     onClick={this.changeApplication}
                     onSelect={this.selectApplication}
                     />
-                ))}
-              </div>
+                ))
+            ) : (
+              (this.state.applicationQuery.enabled && this.props.context.user.capabilities.canUploadApplication && (
+                <ApplicationTileNew
+                  onClick={this.newApplication}
+                  />
+              ))
             )}
+            </div>
           </div>
         )}
       </div>
     );
+
+    //
   }
 
   private loadApplicationPeople(): void {
@@ -289,8 +314,14 @@ class ApplicationList_ extends React.Component<IApplicationListProps, IApplicati
   }
 
   @autobind
+  private newApplication(): void {
+    this.setState({
+      newApplicationPanelVisible: true
+    });
+  }
+
+  @autobind
   private onNewClick(ev?:React.MouseEvent<HTMLElement>, item?:IContextualMenuItem): void {
-    //fileDownload(this.props.editorString, this.props.fieldName + '.json');
     this.setState({
       newApplicationPanelVisible: true
     });
@@ -300,6 +331,15 @@ class ApplicationList_ extends React.Component<IApplicationListProps, IApplicati
     this.setState({
       newApplicationPanelVisible: false
     });
+  }
+
+  @autobind
+  private successNewPanel(): void {
+    this.setState({
+      newApplicationPanelVisible: false
+    });
+
+    this.loadApplications();
   }
 
   @autobind
@@ -345,13 +385,8 @@ class ApplicationList_ extends React.Component<IApplicationListProps, IApplicati
   }
 
   @autobind
-	private onFileTextReceived(fileText:string) {
-    //this.launchEditorFromText(fileText, this.state.columnTypeForOpen || columnTypes.text);
-    console.log("contract text file received");
-    console.log(fileText);
-    this.setState({
-      newApplicationPanelVisible: false
-    });
+  private hideCalloutMessage(): void {
+    this.setState({calloutMessageVisible: false, calloutMessage: ""});
   }
 
   private async awaitChangeApplicationStatus(): Promise<void> {
@@ -365,7 +400,8 @@ class ApplicationList_ extends React.Component<IApplicationListProps, IApplicati
         .setApplicationStatus(appId, enable)
         .then((response: IApplication): void => {
           if (response) {
-            //console.log(response);
+            //TODO: the callout target element is rebuilt when applications are loaded. Need to adjust how applications are loaded to keep commandbar / target element entact
+            //this.setState({calloutMessageVisible: false, calloutMessage: "Application(s) " + (enable ? "enabled" : "disabled")});
           }
           else {
           }

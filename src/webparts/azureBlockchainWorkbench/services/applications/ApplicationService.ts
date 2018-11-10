@@ -1,4 +1,13 @@
-import { IApplicationResponse, IApplication, IApplicationRoleAssignmentResponse, IApplicationWorkflowsResponse, IWorkflow, IApplicationQuery } from '../../models/IApplication';
+import {
+  IApplicationResponse,
+  IApplication,
+  IApplicationRoleAssignmentResponse,
+  IApplicationWorkflowsResponse,
+  IWorkflow,
+  IApplicationQuery,
+  INewApplicationResponse } from '../../models/IApplication';
+import { IFileObject } from '../../models/IFile';
+
 import {AadClient} from "../AadClient";
 
 export interface IApplicationService {
@@ -66,6 +75,55 @@ export class ApplicationService implements IApplicationService {
     return p;
   }
 
+  public async addApplication(app: IFileObject): Promise<any> {
+    var p = new Promise<any>(async (resolve, reject) => {
+
+      const formData = new FormData();
+      //other technique is to convert th ArrayBuffer back into a Blob
+      //formData.append("appFile", new Blob([new Uint8Array(app.file)]));
+      formData.append('appFile', app.file);
+
+      const aadRequestHeaders: Headers = new Headers();
+      aadRequestHeaders.append('Accept', 'application/json');
+      //when formData is provided, fetch will auto populate content-type to provide boundary
+      //aadRequestHeaders.append('Content-Type', 'multipart/form-data; boundary=AaB03x');
+
+      await AadClient
+        .post(
+          "applications",
+          null,
+          formData,
+          aadRequestHeaders
+        )
+        .then((response: any) => {
+          let result: INewApplicationResponse = {} as INewApplicationResponse;
+
+          //parse out response, if a json result, then we can get errors, otherwise was a success
+          if (typeof response == 'object') {
+            result.result = false;
+            result.id = -1;
+
+            //get error messages
+            result.errors = new Array<string>();
+            result.errors.push(response.error.replace(/\"/g, ""));
+          }
+          else {
+            //was a success
+            result.result = true;
+            result.id = response;
+          }
+
+          resolve(result);
+        })
+        .catch(error => {
+          console.error(error);
+          reject(error);
+        });
+    });
+
+    return p;
+  }
+
   public getApplicationDetailRoleAssignments(appId: string): Promise<any> {
     return AadClient
       .get(
@@ -103,6 +161,54 @@ export class ApplicationService implements IApplicationService {
       .catch(error => {
         console.error(error);
       });
+  }
+
+  public async addApplicationContractCode(code: IFileObject, appId: number, ledgerId: number = 1): Promise<any> {
+    var p = new Promise<any>(async (resolve, reject) => {
+
+      const formData = new FormData();
+      //other technique is to convert th ArrayBuffer back into a Blob
+      formData.append('contractFile', code.file);
+
+      const aadRequestHeaders: Headers = new Headers();
+      aadRequestHeaders.append('Accept', 'application/json');
+      //when formData is provided, fetch will auto populate content-type to provide boundary
+      //aadRequestHeaders.append('Content-Type', 'multipart/form-data; boundary=AaB03x');
+
+      await AadClient
+        .post(
+          "applications/" + appId + "/contractCode?ledgerId=" + ledgerId,
+          null,
+          formData,
+          aadRequestHeaders
+        )
+        .then((response: any) => {
+          let result: INewApplicationResponse = {} as INewApplicationResponse;
+
+          //parse out response, if a json result, then we can get errors, otherwise was a success
+          if (typeof response == 'object') {
+            result.result = false;
+            result.id = -1;
+
+            //get error messages
+            result.errors = new Array<string>();
+            result.errors.push(response.error.replace(/\"/g, ""));
+          }
+          else {
+            //was a success
+            result.result = true;
+            result.id = response;
+          }
+
+          resolve(result);
+        })
+        .catch(error => {
+          console.error(error);
+          reject(error);
+        });
+    });
+
+    return p;
   }
 }
 

@@ -1,6 +1,8 @@
 import { IRoleAssignment, IWorkflowProperty, IWorkflowState } from '../models/IApplication';
 import { IContractProperty, ITransaction } from '../models/IContract';
 import { IUserChainMapping } from '../models/IUser';
+import { IApplication } from '../models/IApplication';
+
 import { IHashTable } from '../state/State';
 
 export class HelperFunctions {
@@ -137,11 +139,13 @@ export class HelperFunctions {
     return sReturn.toUpperCase();
   }
 
-  public static getColorFromString(name: string) : string {
+  public static getColorFromString(app: IApplication) : string {
     var sReturn: string = "#";
     var sHashValue: number = 0;
     var iRGBCode: number; //temp stroage for code
     var i: number; //counter
+
+    let name: string = app.name + " " + app.id;
 
     //create a random has based on string characters
     for (i = 0; i < name.length; i++) {

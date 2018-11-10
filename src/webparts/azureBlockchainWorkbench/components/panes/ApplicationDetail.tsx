@@ -126,6 +126,7 @@ class ApplicationDetail_ extends React.Component<IApplicationDetailProps, IAppli
             </Panel>
 
             <DetailsList
+              className={styles.contractList}
               items={this.state.contractRows}
               columns={this.state.contractColumns}
               layoutMode={DetailsListLayoutMode.fixedColumns}
