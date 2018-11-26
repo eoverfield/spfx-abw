@@ -5,7 +5,9 @@ import {
   IApplicationWorkflowsResponse,
   IWorkflow,
   IApplicationQuery,
-  INewApplicationResponse } from '../../models/IApplication';
+  INewApplicationResponse,
+  IContractCodeResponse,
+  IContractCodeQuery} from '../../models/IApplication';
 import { IFileObject } from '../../models/IFile';
 
 import {AadClient} from "../AadClient";
@@ -25,6 +27,14 @@ export class ApplicationService implements IApplicationService {
       enabled: true,
       sortBy: "displayName"
     } as IApplicationQuery;
+  }
+
+  public static initializeContractCodeQuery(): IContractCodeQuery {
+    return {
+      top: 100,
+      skip: 0,
+      ledgerId: 0
+    } as IContractCodeQuery;
   }
 
 	public getMyApplications(query?: IApplicationQuery): Promise<any> {
@@ -290,6 +300,26 @@ export class ApplicationService implements IApplicationService {
     });
 
     return p;
+  }
+
+
+  //Contract Code
+public getContractCodesByApplication(appId: string, query?: IContractCodeQuery): Promise<any> {
+    //GET /api/v1/applications/{applicationId}/
+
+    if (typeof query == "undefined" || !query) {
+      query = ApplicationService.initializeContractCodeQuery();
+    }
+    return AadClient
+      .get(
+        "applications/" + appId + "/contractCode" + "?top=" + query.top + "&skip=" + query.skip + ((query.ledgerId > 0) ? "&ledgerId=" + query.ledgerId : "")
+      )
+      .then((response: IContractCodeResponse): IContractCodeResponse => {
+        return response;
+      })
+      .catch(error => {
+        console.error(error);
+      });
   }
 }
 

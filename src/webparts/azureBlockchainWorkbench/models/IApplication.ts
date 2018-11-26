@@ -23,12 +23,23 @@ export interface INewApplicationResponse {
   errors?: Array<string>;
 }
 
+export interface IContractCodeResponse {
+  nextLink: string;
+  contractCodes: IContractCode[];
+}
+
 //Query Interfaces
 export interface IApplicationQuery {
   top: number;
   skip: number;
   enabled: boolean;
   sortBy: string;
+}
+
+export interface IContractCodeQuery {
+  top: number;
+  skip: number;
+  ledgerId: number;
 }
 
 //Applications
@@ -128,4 +139,11 @@ export interface IWorkflowType {
 }
 
 export interface IWorkflowElementType {
+}
+
+export interface IContractCode {
+  contractCodeID: number;
+  ledgerID: number;
+  createdByUserId: number;
+  createdDtTm: string;
 }

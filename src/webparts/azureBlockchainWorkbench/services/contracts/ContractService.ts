@@ -1,4 +1,4 @@
-import { IContractResponse, IContract } from '../../models/IContract';
+import { IContractResponse, IContract, INewContract } from '../../models/IContract';
 import {AadClient} from "../AadClient";
 
 export interface IContractService {
@@ -34,5 +34,34 @@ export class ContractService implements IContractService {
       .catch(error => {
         console.error(error);
       });
+  }
+
+  public addContract(newContract: INewContract): Promise<any> {
+    var p = new Promise<any>(async (resolve, reject) => {
+
+      let body: string = JSON.stringify(newContract.constructor);
+
+      const aadRequestHeaders: Headers = new Headers();
+      aadRequestHeaders.append('Accept', 'application/json');
+      aadRequestHeaders.append('Content-Type', 'application/json');
+
+      //api/v1/contracts?workflowId=1&contractCodeId=1&connectionId=1
+      await AadClient
+        .post(
+          "contracts?workflowId=" + newContract.workflowId + "&contractCodeId=" + newContract.contractCodeId + "&connectionId="+ newContract.connectionId,
+          body,
+          null,
+          aadRequestHeaders
+        )
+        .then((response: any) => {
+          resolve(response);
+        })
+        .catch(error => {
+          console.error(error);
+          reject(error);
+        });
+    });
+
+    return p;
   }
 }

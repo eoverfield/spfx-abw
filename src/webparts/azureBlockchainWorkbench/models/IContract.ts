@@ -49,3 +49,16 @@ export interface IContractProperty {
   workflowPropertyId: number;
   value: string;
 }
+
+export interface INewContract {
+  workflowId: number;
+  contractCodeId: number;
+  connectionId: number;
+  constructor: IContractConstructor;
+}
+
+//used for creating a new contract
+export interface IContractConstructor {
+  workflowFunctionId: number;
+  workflowActionParameters: IParameter[];
+}

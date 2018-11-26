@@ -9,17 +9,19 @@ import { CommandBar } from 'office-ui-fabric-react/lib/CommandBar';
 import { IContextualMenuItem } from 'office-ui-fabric-react/lib/ContextualMenu';
 import { Panel, PanelType } from 'office-ui-fabric-react/lib/Panel';
 import { Label } from 'office-ui-fabric-react/lib/Label';
+import { TextField } from 'office-ui-fabric-react/lib/TextField';
+import { Button, PrimaryButton } from 'office-ui-fabric-react/lib/Button';
 import { IPersonaSharedProps } from 'office-ui-fabric-react/lib/Persona';
 import { IFacepilePersona } from 'office-ui-fabric-react/lib/Facepile';
 import { IBreadcrumbItem } from 'office-ui-fabric-react/lib/Breadcrumb';
-import { DetailsList, DetailsListLayoutMode, Selection, SelectionMode, IColumn, IDetailsList } from 'office-ui-fabric-react/lib/DetailsList';
+import { DetailsList, DetailsListLayoutMode, Selection, SelectionMode, IColumn, IDetailsList, IDetailsRowProps, DetailsRow } from 'office-ui-fabric-react/lib/DetailsList';
 import { Spinner, SpinnerSize } from 'office-ui-fabric-react/lib/Spinner';
 
 import { autobind } from 'office-ui-fabric-react/lib/Utilities';
 
 import { Header } from '../controls/Header';
 
-import { IApplication, IApplicationRoleAssignmentResponse, IRoleAssignment, IApplicationWorkflowsResponse, IWorkflow, IWorkflowProperty, IWorkflowState } from '../../models/IApplication';
+import { IApplication, IApplicationRoleAssignmentResponse, IRoleAssignment, IApplicationWorkflowsResponse, IWorkflow, IWorkflowProperty, IWorkflowState, IContractCodeQuery } from '../../models/IApplication';
 
 import { ApplicationService } from '../../services/applications/ApplicationService';
 import { ContractService } from '../../services/contracts/ContractService';
@@ -27,8 +29,13 @@ import { ContractService } from '../../services/contracts/ContractService';
 import { IApplicationState, uiState, IApplicationContext } from '../../state/State';
 import { changeUIState, setCurrentApplicationAction, setCurrentApplicationAppAction, setCurrentWorkflowAction, setCurrentRoleAssignmentsAction, addCurrentBreadcrumbAction } from '../../state/Actions';
 import { Breadcrumb, IBreadcrumb } from '../../../../../node_modules/office-ui-fabric-react/lib/Breadcrumb';
-import { IContractResponse, IContract, IContractProperty } from '../../models/IContract';
+import { IContractResponse, IContract, IContractProperty, INewContract, IParameter, IContractConstructor } from '../../models/IContract';
+import { IContractCodeResponse } from '../../models/IApplication';
+
 import { HelperFunctions } from '../../helpers/HelperFunctions';
+
+import times = require('lodash/times');
+import { Icon } from 'office-ui-fabric-react/lib/Icon';
 
 export enum applicationStage {
   loading,
@@ -60,6 +67,7 @@ export interface IApplicationDetailState {
   contracts?: Array<IContract>;
   contractColumns?: Array<IColumn>;
   contractRows?: Array<any>;
+  newContract?: INewContract;
 }
 
 class ApplicationDetail_ extends React.Component<IApplicationDetailProps, IApplicationDetailState> {
@@ -82,7 +90,8 @@ class ApplicationDetail_ extends React.Component<IApplicationDetailProps, IAppli
       currentWorkflow: undefined,
       contracts: undefined,
       contractColumns: undefined,
-      contractRows: undefined
+      contractRows: undefined,
+      newContract: undefined
     };
 
     this.appId = this.props.application.applicationId;
@@ -120,12 +129,46 @@ class ApplicationDetail_ extends React.Component<IApplicationDetailProps, IAppli
             />
 
             <Panel
+              className={styles.panelContract}
               isOpen={this.state.newContractPanelVisible}
               onDismiss={this.onCloseNewContractClick}
               type={PanelType.medium}
               headerText="New Contract"
             >
-              <Label required={true}>Create a new contract</Label>
+              {this.props.application.currentWorkflow && this.props.application.currentWorkflow.constructor && (
+                <div>
+                  <div className={styles.createContractOptions}>
+                    {this.props.application.currentWorkflow.constructor.parameters.map((item, index) => (
+                      <div>
+                        <Label required={true}>{item.displayName}</Label>
+
+                        {item.type.name == "string" && (
+                          <div>
+                            <TextField
+                              id={item.name}
+                              onChanged={(newValue: any) => {this._newContractValueChanged(item.name, newValue);}}
+                            />
+                          </div>
+
+                        )}
+                      </div>
+                    ))}
+                  </div>
+
+                  <div className={styles.createContractActions}>
+                    <PrimaryButton
+                      className={styles.buttonPrimary}
+                      text={"Create"}
+                      onClick={this.createContract}
+                    />
+                    <Button
+                      text={"Cancel"}
+                      onClick={this.createContractCancel}
+                    />
+                  </div>
+                </div>
+
+              )}
 
             </Panel>
 
@@ -136,6 +179,7 @@ class ApplicationDetail_ extends React.Component<IApplicationDetailProps, IAppli
               layoutMode={DetailsListLayoutMode.fixedColumns}
               selectionMode={SelectionMode.none}
               onActiveItemChanged={this.onContractClick}
+              onRenderRow={this.onContractRenderRow}
             />
           </div>
         )}
@@ -411,25 +455,43 @@ class ApplicationDetail_ extends React.Component<IApplicationDetailProps, IAppli
     contracts.forEach((item: IContract, index: number) => {
       var row: any = {};
 
+      /*
+      provisioningStatus
+      0: {displayName: 'Contract is being created.', actionDisplayName: 'Action is being created'}
+      1: {displayName: 'Working on contract. It may take a few minutes.', actionDisplayName: 'Working on Action'}
+      2: {displayName: 'success', actionDisplayName: 'success'}
+      3: {displayText: 'This is taking longer than expected. Contact your administration for help resolving the problem.'}
+      */
+
       //if the item is invalid or did not provision correctly, skip
-      if (!item || item.provisioningStatus == 0) {
+      if (!item || item.provisioningStatus < 0) {
         return;
       }
 
-      var workflowState: IWorkflowState = HelperFunctions.getWorkflowStateById(this.state.currentWorkflow.states, item.contractActions[item.contractActions.length - 1].workflowStateId.toString());
+      //console.log("Setting up contract row");
+      //console.log(item);
+
       var modifiedUser: IRoleAssignment = HelperFunctions.getUserFromRoleAssignments(this.state.roleAssignments, item.deployedByUserId);
 
       row.id = item.id;
-      row.state = workflowState.name;
+      row.provisioningStatus = item.provisioningStatus;
+      row.state = "";
       row.modifiedBy = modifiedUser ? modifiedUser.user.firstName + " " + modifiedUser.user.lastName : "Unknown: " + item.deployedByUserId;
       row.timestamp = (new Date(item.timestamp).toLocaleDateString());
+      row.timestampFull = item.timestamp;
 
-      //now need to go through all workflow properties and get values
-      this.state.currentWorkflow.properties.forEach((propertyItem: IWorkflowProperty, propertyIndex: number) => {
-        if (propertyItem.type.name != "state") {
-          row[propertyItem.name] = this.getWorkflowPropertyValueById(this.state.currentWorkflow, item, this.state.roleAssignments, propertyItem.id);
-        }
-      });
+      //if provisioned, we can get more information
+      if (item.provisioningStatus == 2) {
+        var workflowState: IWorkflowState = HelperFunctions.getWorkflowStateById(this.state.currentWorkflow.states, item.contractActions[item.contractActions.length - 1].workflowStateId.toString());
+        row.state = workflowState.name;
+
+        //now need to go through all workflow properties and get values
+        this.state.currentWorkflow.properties.forEach((propertyItem: IWorkflowProperty, propertyIndex: number) => {
+          if (propertyItem.type.name != "state") {
+            row[propertyItem.name] = this.getWorkflowPropertyValueById(this.state.currentWorkflow, item, this.state.roleAssignments, propertyItem.id);
+          }
+        });
+      }
 
       aReturn.push(row);
     });
@@ -497,19 +559,6 @@ class ApplicationDetail_ extends React.Component<IApplicationDetailProps, IAppli
 
   //UI event handlers
   @autobind
-  private onNewContractClick(ev?:React.MouseEvent<HTMLElement>, item?:IContextualMenuItem): void {
-    this.setState({
-      newContractPanelVisible: true
-    });
-  }
-  @autobind
-  private onCloseNewContractClick(): void {
-    this.setState({
-      newContractPanelVisible: false
-    });
-  }
-
-  @autobind
   private onAddNewMember(): void {
     //reload this application if a new role was successfully added
     this.loadApplicationDetailRoleAssignments();
@@ -527,11 +576,208 @@ class ApplicationDetail_ extends React.Component<IApplicationDetailProps, IAppli
 
   @autobind
   private onContractClick(item: any): void {
+    //only allow successful contracts to load
+    if (item.provisioningStatus != 2) {
+      return;
+    }
+
     //set the app workflow
     this.props.setCurrentApplicationAction(this.appId, this.state.currentWorkflow.id.toString(), item.id);
 
     //change ui
     this.props.changeUIState(uiState.contractDetail);
+  }
+
+  private onContractRenderRow = (props: IDetailsRowProps): JSX.Element => {
+    //console.log("Details props");
+    //console.log(props);
+
+    //TODO: get timestamp difference, if over a minute delay, something is likely wrong
+    let timestamp:Date = new Date(props.item.timestampFull);
+    let nowDate: Date = new Date(Date.now());
+    let nowUTC:number = new Date(
+      nowDate.getUTCFullYear(),
+      nowDate.getUTCMonth(),
+      nowDate.getUTCDate(),
+      nowDate.getUTCHours(),
+      nowDate.getUTCMinutes(),
+      nowDate.getUTCSeconds()
+    ).getTime();
+
+    //get number of minutes that have past
+    let minsPassed:number = Math.floor((nowUTC - timestamp.getTime()) / 60000);
+
+    //set up possible custom columns
+    var columns: IColumn[] = new Array<IColumn>();
+
+    columns.push({
+      key: 'space',
+      name: 'space',
+      fieldName: 'space',
+      minWidth: (50),
+      maxWidth: (75),
+      isResizable: true,
+      ariaLabel: 'ID'
+    });
+    columns.push({
+      key: 'message',
+      name: 'Message',
+      fieldName: 'message',
+      minWidth: (50*3),
+      isResizable: true,
+      ariaLabel: 'Status Message',
+      onRender: (item: any) => {
+        if (item.icon) {
+          if (item.icon == "spinner") {
+            return <Spinner className={styles.msSpinner} size={SpinnerSize.small} label={item.message}/>;
+          }
+          else {
+            return <div>
+              <Icon
+                iconName={item.icon}
+                className={styles.icon}
+              />
+              <Label className={styles.message}>{item.message}</Label>
+            </div>;
+          }
+        }
+      }
+    });
+
+    //appears to be provisioning so create on column
+    //starting
+    if (props.item.provisioningStatus == 0) {
+      props.columns = columns;
+
+      if (minsPassed < 1) {
+        props.item.message = "Contract " + props.item.id + " is being created.";
+        props.item.icon = "spinner";
+      }
+      else {
+        props.item.message = "It looks like something went wrong with creating contract " + props.item.id + ". Contact your administrator for help resolving the problem.";
+        props.item.icon = "Info";
+        props.className = styles.warning;
+      }
+    }
+    //in process
+    else if (props.item.provisioningStatus == 1) {
+      props.columns = columns;
+
+      if (minsPassed < 5) {
+        props.item.message = "Working on contract " + props.item.id + ". It may take a few minutes.";
+        props.item.icon = "spinner";
+      }
+      else {
+        props.item.message = "It looks like something went wrong while working on creating contract " + props.item.id + ". Contact your administrator for help resolving the problem.";
+        props.item.icon = "Info";
+        props.className = styles.warning;
+      }
+    }
+
+    return <DetailsRow {...props} />;
+  }
+
+
+
+  @autobind
+  private onNewContractClick(ev?:React.MouseEvent<HTMLElement>, item?:IContextualMenuItem): void {
+    console.log(this.props.application);
+
+    //go and get all contracts codeblocks for this application
+    let applicationService: ApplicationService = new ApplicationService();
+    let query: IContractCodeQuery = ApplicationService.initializeContractCodeQuery();
+
+    applicationService.getContractCodesByApplication(this.props.application.applicationId, query)
+      .then((response: IContractCodeResponse): void => {
+        //spin up new contract
+        let newContract: INewContract = {} as INewContract;
+        newContract.workflowId = this.props.application.currentWorkflow.id;
+        newContract.connectionId = 1;
+        newContract.contractCodeId = response.contractCodes[0].contractCodeID;
+
+        newContract.constructor = {} as IContractConstructor;
+        newContract.constructor.workflowFunctionId = this.props.application.currentWorkflow.constructor.id;
+        newContract.constructor.workflowActionParameters = [] as IParameter[];
+
+        //set up the list of parameters for this specific contract
+        this.props.application.currentWorkflow.constructor.parameters.forEach((parameterItem: IWorkflowProperty) => {
+          let newParameter: IParameter = {} as IParameter;
+          newParameter.name = parameterItem.name;
+          newParameter.workflowFunctionParameterId = parameterItem.id;
+          newParameter.value = "";
+
+          newContract.constructor.workflowActionParameters.push(newParameter);
+        });
+
+        this.setState({
+          newContractPanelVisible: true,
+          newContract: newContract
+        });
+      })
+      .catch(error => {
+        console.error(error);
+      });
+  }
+  @autobind
+  private onCloseNewContractClick(): void {
+    this.setState({
+      newContractPanelVisible: false
+    });
+  }
+  @autobind
+  private _newContractValueChanged(parameterKey: string, newValue: any):void {
+    let newContract: INewContract = this.state.newContract;
+
+    //we have to find the key of what was updated, and update state
+    newContract.constructor.workflowActionParameters.forEach((item: IParameter) => {
+      if (item.name == parameterKey) {
+        item.value = newValue;
+      }
+    });
+
+    //update state with new value of contract
+    this.setState({
+      newContract: newContract
+    });
+
+  }
+
+  @autobind
+  private createContract(): void {
+    //ensure that we have the correct new contract value state
+    //TODO: ensure we have all parameters provided
+    console.log(this.state.newContract);
+
+    let contractService: ContractService = new ContractService();
+
+    //will post to:
+    ///api/v1/contracts?workflowId=1&contractCodeId=1&connectionId=1
+    //{"workflowFunctionId":1,"workflowActionParameters":[{"name":"message","value":"hello again"}]}
+    contractService.addContract(this.state.newContract)
+      .then((response: any): void => {
+        console.log("Looks like contract added");
+        console.log(response);
+
+        //close panel and reload.
+        this.setState({
+          newContractPanelVisible: false
+        });
+        //reload this application if a new role was successfully added
+        this.loadApplicationDetailRoleAssignments();
+
+        this.loadApplicationDetail();
+
+      })
+      .catch(error => {
+        console.error(error);
+      });
+  }
+
+  @autobind
+  private createContractCancel(): void {
+    this.setState({
+      newContractPanelVisible: false
+    });
   }
 }
 

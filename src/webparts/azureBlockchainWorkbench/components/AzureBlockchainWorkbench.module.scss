@@ -626,6 +626,42 @@
       }
     }
   }
+
+  .warning {
+    background-color: #f1f7fc;
+    border-bottom: 1px solid #ffffff;
+
+    &:hover {
+      cursor: default;
+    }
+  }
+  .icon {
+    display: inline-block;
+    font-size: 14px;
+    vertical-align: middle;
+  }
+  .message {
+    display: inline-block;
+    padding-left: 10px;
+    vertical-align: middle;
+  }
+
+  .msSpinner {
+    margin: 0px;
+
+    :global {
+      .ms-Spinner-circle {
+        display: inline-block;
+        vertical-align: middle;
+      }
+      .ms-Spinner-label {
+        display: inline-block;
+        vertical-align: middle;
+        margin: 0px 0px 0px 10px;
+      }
+    }
+
+  }
 }
 .contractActivity {
   cursor: initial;
@@ -855,6 +891,20 @@
   }
 
   .addMemberActions {
+    margin: 20px 0px;
+  }
+
+  .buttonPrimary {
+    margin-right: 8px;
+  }
+}
+
+.panelContract {
+  .createContractOptions {
+    display: block;
+  }
+
+  .createContractActions {
     margin: 20px 0px;
   }
 
