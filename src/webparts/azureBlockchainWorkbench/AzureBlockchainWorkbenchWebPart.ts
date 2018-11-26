@@ -19,6 +19,7 @@ import * as strings from 'AzureBlockchainWorkbenchWebPartStrings';
 import { AzureBlockchainWorkbench } from './components/AzureBlockchainWorkbench';
 
 import { AadClient } from './services/AadClient';
+import { MSGraph } from './services/MSGraph';
 
 import { setContext, setHeight, setAppsPerPage, setWorkbenchApiUrl, setWorkbenchAADAppId, changeUIState } from './state/Actions';
 import { abwReducer } from './state/Reducers';
@@ -73,6 +74,9 @@ export default class AzureBlockchainWorkbenchWebPart extends BaseClientSideWebPa
       //since we have an aad app id and api url, then we can attempt to load the user
       this.store.dispatch(changeUIState(uiState.loadingCurrentUser));
     }
+
+    //set up graph while at it
+    MSGraph.Init(this.context);
   }
 
   public render(): void {

@@ -3,6 +3,11 @@ export interface IUserResponse {
   users: IUser[];
 }
 
+export interface IGraphUserResponse {
+  '@odata.context': string;
+  value: IGraphUser[];
+}
+
 export interface ICurrentUserResponse {
   currentUser: IUser;
   capabilities: IUserCapabilities;
@@ -30,4 +35,13 @@ export interface IUserCapabilities {
   canUploadContractCode: boolean;
   canModifyRoleAssignments: boolean;
   canProvisionUser: boolean;
+}
+
+export interface IGraphUser {
+  id: string;
+  displayName: string;
+  mail: string;
+  givenName: string;
+  surname: string;
+  userPrincipalName: string;
 }

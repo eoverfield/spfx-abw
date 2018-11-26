@@ -6,7 +6,7 @@ import { IBreadcrumbItem } from 'office-ui-fabric-react/lib/Breadcrumb';
 import { IAzureBlockchainWorkbenchWebPartProps } from '../AzureBlockchainWorkbenchWebPart';
 
 import { IUser, IUserCapabilities } from '../models/IUser';
-import { IApplication, IWorkflow } from '../models/IApplication';
+import { IApplication, IWorkflow, IRoleAssignment } from '../models/IApplication';
 import { IContract } from '../models/IContract';
 
 export interface IHashTable<T> {
@@ -40,6 +40,7 @@ export interface IApplicationContext {
   currentApplication: IApplication;
   currentWorkflow: IWorkflow;
   currentContract: IContract;
+  currentRoleAssignments: Array<IRoleAssignment>;
   selectedApplications: IHashTable<number>;
 }
 
@@ -88,6 +89,7 @@ export const initialState: IApplicationState = {
       currentApplication: undefined,
       currentWorkflow: undefined,
       currentContract: undefined,
+      currentRoleAssignments: undefined,
       selectedApplications: {} as IHashTable<number>
     },
     workbench: {

@@ -3,13 +3,17 @@
   "solution": {
     "name": "azure-workbench-client-side-solution",
     "id": "504d9028-a401-4631-8e3f-3cd61f9a68d7",
-    "version": "1.0.0.2",
+    "version": "1.0.0.4",
     "includeClientSideAssets": true,
     "skipFeatureDeployment": true,
     "webApiPermissionRequests": [
       {
         "resource": "Azure Blockchain Workbench Web Client",
         "scope": "user_impersonation"
+      },
+      {
+        "resource": "Microsoft Graph",
+        "scope": "User.ReadBasic.All"
       }
     ]
   },

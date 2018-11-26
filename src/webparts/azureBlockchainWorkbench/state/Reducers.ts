@@ -62,8 +62,22 @@ export const abwReducer = (state:IApplicationState = initialState, action:Action
     case typeKeys.SET_CURRENTCONTRACT:
       newState.context.application.currentContract = action.contract;
       break;
+    case typeKeys.SET_CURRENTROLEASSIGNMENTS:
+      newState.context.application.currentRoleAssignments = action.roleAssignments;
+      break;
     case typeKeys.SET_SELECTEDAPPLICATIONS:
       newState.context.application.selectedApplications = action.selectedApplications;
+      break;
+    case typeKeys.RESET_CURRENTAPPLICATION:
+      newState.context.application.applicationId = undefined;
+      newState.context.application.workflowId = undefined;
+      newState.context.application.contractId = undefined;
+      newState.context.application.currentApplication = undefined;
+      newState.context.application.currentWorkflow = undefined;
+      newState.context.application.currentContract = undefined;
+      newState.context.application.currentRoleAssignments = undefined;
+      newState.context.application.selectedApplications = undefined;
+
       break;
 
     case typeKeys.ADD_CURRENTBREADCRUMB:
@@ -103,6 +117,7 @@ function SetContextReducer(context:IContext, action:ISetContextAction): IContext
       currentApplication: undefined,
       currentWorkflow: undefined,
       currentContract: undefined,
+      currentRoleAssignments: undefined,
       selectedApplications: {} as IHashTable<number>
     },
     properties: action.properties,

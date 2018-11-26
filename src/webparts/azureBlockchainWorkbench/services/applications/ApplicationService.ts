@@ -210,5 +210,86 @@ export class ApplicationService implements IApplicationService {
 
     return p;
   }
+
+  public addApplicationDetailRoleAssignments(appId: string, userId: string, roleId: string): Promise<any> {
+    var p = new Promise<any>(async (resolve, reject) => {
+
+      let body: string = JSON.stringify({userId: userId, applicationRoleId: roleId});
+
+      const aadRequestHeaders: Headers = new Headers();
+      aadRequestHeaders.append('Accept', 'application/json');
+      aadRequestHeaders.append('Content-Type', 'application/json');
+
+      await AadClient
+        .post(
+          "applications/" + appId + "/roleAssignments",
+          body,
+          null,
+          aadRequestHeaders
+        )
+        .then((response: any) => {
+          resolve(response);
+        })
+        .catch(error => {
+          console.error(error);
+          reject(error);
+        });
+    });
+
+    return p;
+  }
+
+  public updateApplicationDetailRoleAssignment(appId: string, roleAssignmentId: string, userId: string, roleId: string): Promise<any> {
+    var p = new Promise<any>(async (resolve, reject) => {
+
+      let body: string = JSON.stringify({userId: userId, applicationRoleId: roleId});
+
+      const aadRequestHeaders: Headers = new Headers();
+      aadRequestHeaders.append('Accept', 'application/json');
+      aadRequestHeaders.append('Content-Type', 'application/json');
+
+      //applications/1/roleAssignments/10
+      await AadClient
+        .put(
+          "applications/" + appId + "/roleAssignments/" + roleAssignmentId,
+          body,
+          aadRequestHeaders
+        )
+        .then((response: any) => {
+          resolve(response);
+        })
+        .catch(error => {
+          console.error(error);
+          reject(error);
+        });
+    });
+
+    return p;
+  }
+
+  public deleteApplicationDetailRoleAssignment(appId: string, roleAssignmentId: string): Promise<any> {
+    var p = new Promise<any>(async (resolve, reject) => {
+
+      const aadRequestHeaders: Headers = new Headers();
+      aadRequestHeaders.append('Accept', 'application/json');
+      aadRequestHeaders.append('Content-Type', 'application/json');
+
+      //applications/1/roleAssignments/10
+      await AadClient
+        .delete(
+          "applications/" + appId + "/roleAssignments/" + roleAssignmentId,
+          aadRequestHeaders
+        )
+        .then((response: any) => {
+          resolve(response);
+        })
+        .catch(error => {
+          console.error(error);
+          reject(error);
+        });
+    });
+
+    return p;
+  }
 }
 

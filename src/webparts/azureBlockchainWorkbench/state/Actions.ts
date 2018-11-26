@@ -7,7 +7,7 @@ import { IBreadcrumbItem } from 'office-ui-fabric-react/lib/Breadcrumb';
 
 import { uiState, IHashTable } from './State';
 import { IUser, IUserCapabilities } from '../models/IUser';
-import { IApplication, IWorkflow } from '../models/IApplication';
+import { IApplication, IWorkflow, IRoleAssignment } from '../models/IApplication';
 import { IContract } from '../models/IContract';
 
 //** All the action interfaces */
@@ -22,7 +22,9 @@ export type ActionTypes =
   | ISetCurrentApplicationAppAction
   | ISetCurrentWorkflowAction
   | ISetCurrentContractAction
+  | ISetCurrentRoleAssignmentsAction
   | ISetSelectedApplicationsAction
+  | IResetCurrentApplicationAction
   | IAddCurrentBreadcrumbAction
 	| IChangeUIStateAction
 	| IOtherAction;
@@ -40,7 +42,9 @@ export enum typeKeys {
   SET_CURRENTAPPLICATIONAPP = "SET_CURRENTAPPLICATIONAPP",
   SET_CURRENTWORKFLOW = "SET_CURRENTWORKFLOW",
   SET_CURRENTCONTRACT = "SET_CURRENTCONTRACT",
+  SET_CURRENTROLEASSIGNMENTS = "SET_CURRENTROLEASSIGNMENTS",
   SET_SELECTEDAPPLICATIONS = "SET_SELECTEDAPPLICATIONS",
+  RESET_CURRENTAPPLICATION = "RESET_CURRENTAPPLICATION",
 
   ADD_CURRENTBREADCRUMB = "ADD_CURRENTBREADCRUMB",
 
@@ -163,6 +167,14 @@ export const setCurrentContractAction = (contract:IContract): ISetCurrentContrac
 	type: typeKeys.SET_CURRENTCONTRACT,
   contract
 });
+export interface ISetCurrentRoleAssignmentsAction {
+	type: typeKeys.SET_CURRENTROLEASSIGNMENTS;
+  roleAssignments: Array<IRoleAssignment>;
+}
+export const setCurrentRoleAssignmentsAction = (roleAssignments:Array<IRoleAssignment>): ISetCurrentRoleAssignmentsAction => ({
+	type: typeKeys.SET_CURRENTROLEASSIGNMENTS,
+  roleAssignments
+});
 export interface ISetSelectedApplicationsAction {
 	type: typeKeys.SET_SELECTEDAPPLICATIONS;
   selectedApplications: IHashTable<number>;
@@ -170,6 +182,13 @@ export interface ISetSelectedApplicationsAction {
 export const setSelectedApplicationsAction = (selectedApplications:IHashTable<number>): ISetSelectedApplicationsAction => ({
 	type: typeKeys.SET_SELECTEDAPPLICATIONS,
   selectedApplications
+});
+
+export interface IResetCurrentApplicationAction {
+	type: typeKeys.RESET_CURRENTAPPLICATION;
+}
+export const resetCurrentApplicationAction = (): IResetCurrentApplicationAction => ({
+	type: typeKeys.RESET_CURRENTAPPLICATION
 });
 
 //set the context current breadcrumb list

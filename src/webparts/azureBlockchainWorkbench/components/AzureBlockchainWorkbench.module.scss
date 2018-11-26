@@ -55,6 +55,7 @@
         }
       }
     }
+
   }
 
   .applicationList {
@@ -283,6 +284,12 @@
       padding-top: 39px;
       padding-bottom: 12px;
       color: #7d7d7d;
+    }
+  }
+
+  :global {
+    .ms-Spinner {
+      margin-top: 20px;
     }
   }
 }
@@ -827,6 +834,33 @@
     }
   }
 
+}
+
+.panelPeople {
+  .addMemberOptions {
+    display: block;
+  }
+  .addMemberPicker {
+    display: block;
+  }
+  .addMemberRole {
+    margin: 10px 0px;
+    width: 150px;
+
+    :global {
+      .ms-Dropdown-title {
+        border: 0px none transparent;
+      }
+    }
+  }
+
+  .addMemberActions {
+    margin: 20px 0px;
+  }
+
+  .buttonPrimary {
+    margin-right: 8px;
+  }
 }
 
 /*

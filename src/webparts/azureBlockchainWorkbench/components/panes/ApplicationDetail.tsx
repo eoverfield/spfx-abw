@@ -25,7 +25,7 @@ import { ApplicationService } from '../../services/applications/ApplicationServi
 import { ContractService } from '../../services/contracts/ContractService';
 
 import { IApplicationState, uiState, IApplicationContext } from '../../state/State';
-import { changeUIState, setCurrentApplicationAction, addCurrentBreadcrumbAction } from '../../state/Actions';
+import { changeUIState, setCurrentApplicationAction, setCurrentApplicationAppAction, setCurrentWorkflowAction, setCurrentRoleAssignmentsAction, addCurrentBreadcrumbAction } from '../../state/Actions';
 import { Breadcrumb, IBreadcrumb } from '../../../../../node_modules/office-ui-fabric-react/lib/Breadcrumb';
 import { IContractResponse, IContract, IContractProperty } from '../../models/IContract';
 import { HelperFunctions } from '../../helpers/HelperFunctions';
@@ -40,6 +40,9 @@ export interface IApplicationDetailProps {
   uiHeight?: number;
   changeUIState?: (state:uiState) => void;
   setCurrentApplicationAction?: (applicationId:string, workflowId?:string, contractId?:string) => void;
+  setCurrentApplicationAppAction?: (application:IApplication) => void;
+  setCurrentWorkflowAction?: (workflow:IWorkflow) => void;
+  setCurrentRoleAssignmentsAction?: (roleAssignments:Array<IRoleAssignment>) => void;
   addCurrentBreadcrumbAction?: (breadcrumb:IBreadcrumbItem) => void;
 }
 
@@ -109,6 +112,7 @@ class ApplicationDetail_ extends React.Component<IApplicationDetailProps, IAppli
               personas = {this.state.personas}
               personaPanelButton = "Add a Member"
               personaPanelButtonAction = {this.onAddNewMember}
+              allowUpdateRoleAssignments = {true}
             />
 
             <CommandBar
@@ -169,11 +173,16 @@ class ApplicationDetail_ extends React.Component<IApplicationDetailProps, IAppli
             });
           });
 
+          //store the current workflow properties
+          this.props.setCurrentRoleAssignmentsAction(roleAssignments);
+
           this.setState({
             roleAssignments: roleAssignments,
             facepilePersonas: aFacepilePersonas,
             personas: aPersonas
           });
+
+
 
         }
       })
@@ -203,6 +212,8 @@ class ApplicationDetail_ extends React.Component<IApplicationDetailProps, IAppli
         if (response) {
           //set the application state
           this.setState({application: response}, () => {
+            this.props.setCurrentApplicationAppAction(this.state.application);
+
             //load up all workflow for this application
             this.loadApplicationWorkflows();
           });
@@ -234,6 +245,13 @@ class ApplicationDetail_ extends React.Component<IApplicationDetailProps, IAppli
           this.setState({
             workflows: response.workflows
           }, () => {
+              //store this application's workflows to the current application
+              this.props.application.currentApplication.workflows = response.workflows;
+              this.props.setCurrentApplicationAppAction(this.props.application.currentApplication);
+
+              //set the current application workflow to the first one in the array
+              this.props.setCurrentApplicationAction(this.state.application.id.toString(), response.workflows[0].id.toString(), "");
+
               //go and load current contracts based on current workflow
               this.loadOneApplicationWorkflow(response.workflows[0].id);
             }
@@ -254,6 +272,10 @@ class ApplicationDetail_ extends React.Component<IApplicationDetailProps, IAppli
         if (response) {
           this.setState({
             currentWorkflow: response}, () => {
+
+              //store the current workflow properties
+              this.props.setCurrentWorkflowAction(response);
+
               //go and load current contracts based on current workflow
               this.loadContracts();
             }
@@ -277,6 +299,10 @@ class ApplicationDetail_ extends React.Component<IApplicationDetailProps, IAppli
       .getContracts(this.appId, this.state.currentWorkflow.id.toString())
       .then((response: IContractResponse): void => {
         if (response) {
+          //store this application's contracts to the current application
+          this.props.application.currentApplication.contracts = response.contracts;
+          this.props.setCurrentApplicationAppAction(this.props.application.currentApplication);
+
           this.setState({
             contracts: response.contracts,
             contractColumns: this.getContractColumns(),
@@ -485,7 +511,10 @@ class ApplicationDetail_ extends React.Component<IApplicationDetailProps, IAppli
 
   @autobind
   private onAddNewMember(): void {
-    console.log("Attempt to add a new member");
+    //reload this application if a new role was successfully added
+    this.loadApplicationDetailRoleAssignments();
+
+    this.loadApplicationDetail();
   }
 
   @autobind
@@ -520,6 +549,15 @@ function mapDispatchToProps(dispatch: Dispatch<IApplicationDetailProps>): IAppli
     },
     setCurrentApplicationAction: (applicationId:string, workflowId?:string, contractId?:string) => {
       dispatch(setCurrentApplicationAction(applicationId, workflowId, contractId));
+    },
+    setCurrentApplicationAppAction: (application:IApplication) => {
+      dispatch(setCurrentApplicationAppAction(application));
+    },
+    setCurrentWorkflowAction: (workflow:IWorkflow) => {
+      dispatch(setCurrentWorkflowAction(workflow));
+    },
+    setCurrentRoleAssignmentsAction: (roleAssignments:Array<IRoleAssignment>) => {
+      dispatch(setCurrentRoleAssignmentsAction(roleAssignments));
     },
     addCurrentBreadcrumbAction: (breadcrumb: IBreadcrumbItem) => {
       dispatch(addCurrentBreadcrumbAction(breadcrumb));

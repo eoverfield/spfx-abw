@@ -3,6 +3,7 @@ import { ServiceScope, Log } from '@microsoft/sp-core-library';
 import { WebPartContext } from '@microsoft/sp-webpart-base';
 
 export class AadClient {
+  private static context: WebPartContext;
   private static aadHttpClient: AadHttpClient;
   private static httpClient: HttpClient;
   private static serviceScope: ServiceScope;
@@ -163,6 +164,75 @@ export class AadClient {
       .catch(error => {
         let aadError = new Error("an error was thrown attempting to complete a patch request.");
         Log.error("Aad Client patch", aadError);
+
+        throw error;
+      });
+  }
+
+  public static async put(url: string, body?: string, aadRequestHeaders?: Headers): Promise<any> {
+    if (aadRequestHeaders == undefined) {
+      aadRequestHeaders = new Headers();
+      aadRequestHeaders.append('Accept', 'application/json, text/plain, */*');
+      aadRequestHeaders.append('Content-Type', 'application/json;charset=UTF-8');
+    }
+
+    //set up get options
+    const requestPatchOptions: IHttpClientOptions = {
+      //body: body,
+      method: 'PUT',
+      headers: aadRequestHeaders,
+      body: body
+    };
+
+    let requestUrl: string = this.apiUrl + url;
+
+    // we want something like this
+    return this.aadHttpClient
+      .fetch(
+        requestUrl,
+        AadHttpClient.configurations.v1,
+        requestPatchOptions
+      )
+      .then(response => {
+        return response;
+      })
+      .catch(error => {
+        let aadError = new Error("an error was thrown attempting to complete a put request.");
+        Log.error("Aad Client put", aadError);
+
+        throw error;
+      });
+  }
+
+  public static async delete(url: string, aadRequestHeaders?: Headers): Promise<any> {
+    if (aadRequestHeaders == undefined) {
+      aadRequestHeaders = new Headers();
+      aadRequestHeaders.append('Accept', 'application/json, text/plain, */*');
+      aadRequestHeaders.append('Content-Type', 'application/json;charset=UTF-8');
+    }
+
+    //set up get options
+    const requestPatchOptions: IHttpClientOptions = {
+      //body: body,
+      method: 'DELETE',
+      headers: aadRequestHeaders
+    };
+
+    let requestUrl: string = this.apiUrl + url;
+
+    // we want something like this
+    return this.aadHttpClient
+      .fetch(
+        requestUrl,
+        AadHttpClient.configurations.v1,
+        requestPatchOptions
+      )
+      .then(response => {
+        return response;
+      })
+      .catch(error => {
+        let aadError = new Error("an error was thrown attempting to complete a delete request.");
+        Log.error("Aad Client delete", aadError);
 
         throw error;
       });

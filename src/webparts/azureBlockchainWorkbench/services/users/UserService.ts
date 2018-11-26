@@ -1,4 +1,6 @@
-import { IUser, IUserResponse, ICurrentUserResponse } from '../../models/IUser';
+import { IPersonaProps } from "office-ui-fabric-react/lib/components/Persona/Persona.types";
+
+import { IUser, IGraphUser, IUserResponse, ICurrentUserResponse } from '../../models/IUser';
 import { ServiceScope, ServiceKey } from '@microsoft/sp-core-library';
 import { AadHttpClient, IHttpClientOptions } from "@microsoft/sp-http";
 import {AadClient} from "../AadClient";
@@ -98,5 +100,64 @@ export class UserService implements IUserService {
       .catch(error => {
         console.error(error);
       });
+  }
+
+  public async getWorkbenchUserByExternalId(externalId: string): Promise<any> {
+    return AadClient
+      .get(
+        "users?externalId=" + externalId
+      )
+      .then((response: IUserResponse): IUserResponse => {
+        if (response) {
+          return response;
+        }
+        else {
+          return null;
+        }
+
+      })
+      .catch(error => {
+        console.error(error);
+      });
+  }
+
+  public async addExternalUser(data: IGraphUser): Promise<any> {
+    var p = new Promise<any>(async (resolve, reject) => {
+
+      console.log("add external user");
+      console.log(data);
+
+      let body: string = JSON.stringify({
+        ExternalId: data.id,
+        FirstName: data.givenName,
+        LastName: data.surname,
+        EmailAddress: data.mail
+      });
+
+      console.log("body");
+      console.log(body);
+
+      const aadRequestHeaders: Headers = new Headers();
+      aadRequestHeaders.append('Accept', 'application/json');
+      aadRequestHeaders.append('Content-Type', 'application/json');
+
+      await AadClient
+        .post(
+          "users",
+          body,
+          null,
+          aadRequestHeaders
+        )
+        .then((response: any) => {
+          console.log("anithing");
+          resolve(response);
+        })
+        .catch(error => {
+          console.error(error);
+          reject(error);
+        });
+    });
+
+    return p;
   }
 }

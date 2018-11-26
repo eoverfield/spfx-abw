@@ -1,4 +1,5 @@
 import { IUser } from './IUser';
+import { IContract } from './IContract';
 
 //Root Responses
 export interface IApplicationResponse {
@@ -41,6 +42,8 @@ export interface IApplication {
   enabled: boolean;
   blobStorageURL: string;
   applicationRoles: IApplicationRole[];
+  workflows?: Array<IWorkflow>;
+  contracts?: Array<IContract>;
 }
 
 export interface IApplicationRole {
